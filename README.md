@@ -1,5 +1,5 @@
 # matrixOperations
-Common matrix operation in prolog
+Common matrix operation in prolog (tested with ECLiPSe 6.1)
 
 Implemented 
 
