@@ -68,3 +68,60 @@ matrixPower(AT,A,N,R):-
     matrixProd(AT,A,A1),
     N1 is N-1,
     matrixPower(A1,A,N1,R).
+    
+%isSquare(+Matrix)
+isSquare([H|T]):-
+    length(H,V),
+    length([H|T],V).
+
+%trace(+Matrix,-Trace)
+trace(M,V):-
+    isSquare(M),
+    traceA(M,V,1).
+
+traceA([],0,_).
+traceA([H|T],V,I):-
+    traceInner(H,V1,I,1),
+    V #= V1+V2,
+    I1 is I+1,
+    traceA(T,V2,I1).
+
+traceInner([H|_],H,I,I):-!.
+traceInner([_|T],V,I1,I2):-
+    I is I2+1,
+    traceInner(T,V,I1,I).
+
+%trace(+Matrix,-Determinant)
+determinant([[A,B],[C,D]],V):-
+    V is A*D-B*C.
+
+%diagonal(+Matrix,-Diagonal)
+diagonal(M,D):-
+    diagonalA(M,D,1).
+
+diagonalA([],[],_).
+diagonalA([H|T],[HD|TD],I):-
+    diagonalInner(H,HD,I,1),
+    I1 is I+1,
+    diagonalA(T,TD,I1).
+
+diagonalInner([H|_],H,I,I):-!.
+diagonalInner([_|T],H,I,I1):-
+    I2 is I1+1,
+    diagonalInner(T,H,I,I2).
+
+%antidiagonal(+Matrix,-Antidiagonal)
+antidiagonal([H|T],A):-
+    length(H,N),
+    antidiagonalA([H|T],A,N).
+
+antidiagonalA([],[],0).
+antidiagonalA([H|T],[HA|TA],N):-
+    antidiagonalInner(H,HA,N,1),
+    N1 is N-1,
+    antidiagonalA(T,TA,N1).
+
+antidiagonalInner([H|_],H,I,I):-!.
+antidiagonalInner([_|T],H,I,E):-
+    E1 is E+1,
+    antidiagonalInner(T,H,I,E1).
