@@ -7,5 +7,8 @@ Implemented
 * Difference 
 * Product
 * Transpose
+* Trace
+* Diagonal
+* Antidiagonal
 
 Still a lot to do
