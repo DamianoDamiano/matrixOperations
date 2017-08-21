@@ -125,3 +125,139 @@ antidiagonalInner([H|_],H,I,I):-!.
 antidiagonalInner([_|T],H,I,E):-
     E1 is E+1,
     antidiagonalInner(T,H,I,E1).
+    
+%determinant(+Matrix,-Determinant)
+determinant([[A,B],[C,D]],V):-!,
+    V is A*D-B*C.
+
+determinant([[A11,A12,A13],[A21,A22,A23],[A31,A32,A33]],Det):-
+    determinant([[A22,A23],[A32,A33]],D1),
+    determinant([[A21,A23],[A31,A33]],D2),
+    determinant([[A21,A22],[A31,A32]],D3),
+    Det is D1*A11 - D2*A12 + D3*A13.
+
+%determinantFd(+Matrix,-Determinant)
+determinantFd([[A,B],[C,D]],V):-!,
+    V #= A*D-B*C.
+
+determinantFd([[A11,A12,A13],[A21,A22,A23],[A31,A32,A33]],Det):-
+    determinantFd([[A22,A23],[A32,A33]],D1),
+    determinantFd([[A21,A23],[A31,A33]],D2),
+    determinantFd([[A21,A22],[A31,A32]],D3),
+    Det #= D1*A11 - D2*A12 + D3*A13.
+
+%size(+Matrix,-Rows,-Column)
+size([H|T],Rows,Col):-
+    length(H,Col),
+    length([H|T],Rows).
+
+%identity(-Matrix,+Size)
+identity(M,S):-
+    identityA(M,S,1).
+
+identityA([],Size,Index):- Index>Size,!.
+identityA([H|T],Size,Index):-
+    identityB(H,Size,Index,1),
+    Index1 is Index+1,
+    identityA(T,Size,Index1).
+
+identityB([],Size,_,Current):-Current>Size,!.
+identityB([H|T],Size,Index,Index):- !,
+    H is 1,
+    Current1 is Index+1,
+    identityB(T,Size,Index,Current1).
+identityB([H|T],Size,Index,Current):-
+    H is 0,
+    Current1 is Current+1,
+    identityB(T,Size,Index,Current1).
+
+%nthRow(+Matrix,+Index,-Row).
+nthRow(Matrix,Index,Row):-
+    nthRow1(Matrix,Index,Row,1).
+
+nthRow1([Row|_],Index,Row,Index):-!.
+nthRow1([_|T],Index,Row,Current):-
+    Current1 is Current+1,
+    nthRow1(T,Index,Row,Current1).
+
+%nthCol(+Matrix,+Index,-Row).
+nthColumn(Matrix,Index,Col):-
+    transpose(Matrix,Transposed),
+    nthRow(Transposed,Index,Col).
+
+%matrixDiffFd(+Matrix1,+Matrix2,-MatrixResult)
+matrixDiffFd([],[],[]).
+    matrixDiffFd([H1|T1],[H2|T2],[HO|TO]):-
+    diffFdIn(H1,H2,HO),
+matrixDiffFd(T1,T2,TO).
+diffFdIn([],[],[]).
+diffFdIn([H1|T1],[H2|T2],[HO|TO]):-
+    HO #= H1-H2,
+    diffFdIn(T1,T2,TO).
+
+%scalarMultiplication(+Matrix,+Scalar,-MatrixResult).
+scalarMultiplication([],_,[]).
+scalarMultiplication([H|T],V,[HR|TR]):-
+    scalarMultiplication1(H,V,HR),
+    scalarMultiplication(T,V,TR).
+
+scalarMultiplication1([],_,[]).
+scalarMultiplication1([H|T],V,[HR|TR]):-
+    HR is H*V,
+    scalarMultiplication1(T,V,TR).
+
+%scalarMultiplicationFd(+Matrix,+Scalar,-MatrixResult).
+scalarMultiplicationFd([],_,[]).
+scalarMultiplicationFd([H|T],V,[HR|TR]):-
+    scalarMultiplicationFd1(H,V,HR),
+    scalarMultiplicationFd(T,V,TR).
+
+scalarMultiplicationFd1([],_,[]).
+scalarMultiplicationFd1([H|T],V,[HR|TR]):-
+    HR #= H*V,
+    scalarMultiplicationFd1(T,V,TR).
+
+%switchRow(+Matrix,+IndexRow1,+IndexRow2,-MatrixResult)
+switchRow(Matrix,IndexRow1,IndexRow2,Result):-
+    nthRow(Matrix,IndexRow1,Row1),
+    nthRow(Matrix,IndexRow2,Row2),
+    switchRow1(Matrix,Row1,Row2,IndexRow1,IndexRow2,1,Result).
+
+switchRow1([],_,_,_,_,_,[]).
+switchRow1([_|T],Row1,Row2,IndexRow1,IndexRow2,IndexRow1,[HR|TR]):-!,
+    HR = Row2,
+    Index is IndexRow1+1,
+    switchRow1(T,Row1,Row2,IndexRow1,IndexRow2,Index,TR).
+switchRow1([_|T],Row1,Row2,IndexRow1,IndexRow2,IndexRow2,[HR|TR]):-!,
+    HR = Row1,
+    Index is IndexRow2+1,
+    switchRow1(T,Row1,Row2,IndexRow1,IndexRow2,Index,TR).
+switchRow1([H|T],Row1,Row2,IndexRow1,IndexRow2,Index,[HR|TR]):-!,
+    HR = H,
+    Index1 is Index+1,
+    switchRow1(T,Row1,Row2,IndexRow1,IndexRow2,Index1,TR).
+
+%switchCol(+Matrix,+IndexCol1,+IndexCol2,-MatrixResult)
+switchCol(Matrix,IndexCol1,IndexCol2,Result):-
+    transpose(Matrix,Transposed),
+    switchRow(Transposed,IndexCol1,IndexCol2,Result1),
+    transpose(Result1,Result).
+
+%eigenvalues(+Matrix,-Eigenvalue).
+%to show all the eigenvalues click on more
+eigenvalues(Matrix,Eigenvalue):-
+    Eigenvalue::0..10,
+    size(Matrix,Size,Size),
+    identity(Identity,Size),
+    scalarMultiplicationFd(Identity,Eigenvalue,Lambda),
+    matrixDiffFd(Matrix,Lambda,MatrixDiff),
+    determinantFd(MatrixDiff,Det),
+    Det #= 0,
+    flatten(Eigenvalue,E),
+    labeling(E).
+    %if you want to display all the eigenvalues
+    %without clicking on "more solutions" replace . with , next to
+    %labeling(E) and add the following lines:
+    %write(E),nl,
+    %fail.
+    %eigenvalues(_,_):-nl.
