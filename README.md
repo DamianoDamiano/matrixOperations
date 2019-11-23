@@ -1,5 +1,5 @@
 # matrixOperations
-Common matrix operation in prolog (tested with ECLiPSe 6.1)
+Common matrix operations implemented in prolog (tested with ECLiPSe 6.1)
 
 Implemented 
 
@@ -21,5 +21,4 @@ Implemented
 * Eigenvalues (only for a 2X2 and 3X3 matrix)
 * Print matrix
 
-
-Still a lot to do
+Still a lot to do...
